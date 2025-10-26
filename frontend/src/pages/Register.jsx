@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -9,6 +9,11 @@ function Register() {
 
   const [message, setMessage] = useState("");
 
+  // ✅ For debugging, show which API URL is being used
+  useEffect(() => {
+    console.log("🌐 Using API:", import.meta.env.VITE_API_URL);
+  }, []);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -17,7 +22,8 @@ function Register() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/users/register", {
+      const API_BASE = import.meta.env.VITE_API_URL; // ✅ get from .env
+      const response = await fetch(`${API_BASE}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -27,6 +33,11 @@ function Register() {
       if (response.ok) {
         setMessage("✅ " + data.message);
         setFormData({ name: "", email: "", password: "" });
+
+        // Optional: redirect after success
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1000);
       } else {
         setMessage("❌ " + data.message);
       }
