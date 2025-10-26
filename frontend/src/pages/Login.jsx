@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -8,6 +8,11 @@ function Login() {
 
   const [message, setMessage] = useState("");
 
+  // ✅ Show which backend URL is being used (for debugging)
+  useEffect(() => {
+    console.log("🌐 Using API:", import.meta.env.VITE_API_URL);
+  }, []);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -16,7 +21,9 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/login`, {
+      const API_BASE = import.meta.env.VITE_API_URL; // ✅ cleaner to store once
+
+      const response = await fetch(`${API_BASE}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -25,18 +32,18 @@ function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // ✅ Save token to localStorage
+        // ✅ Save token & user data locally
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 
         setMessage("✅ " + data.message);
 
-        // Optional: Redirect to dashboard after login
+        // Redirect after 1 second
         setTimeout(() => {
           window.location.href = "/dashboard";
         }, 1000);
       } else {
-        setMessage("❌ " + data.message);
+        setMessage("❌ " + (data.message || "Invalid credentials"));
       }
     } catch (error) {
       console.error("Error:", error);
