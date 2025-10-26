@@ -11,7 +11,9 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "https://webdev-finals-draft.vercel.app", // your Vercel frontend URL
+}));
 app.use(express.json());
 
 // ✅ User Schema
