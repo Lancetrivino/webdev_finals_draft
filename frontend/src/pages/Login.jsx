@@ -7,8 +7,9 @@ function Login() {
   });
 
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Show which backend URL is being used (for debugging)
+  // ✅ Show which backend URL is being used
   useEffect(() => {
     console.log("🌐 Using API:", import.meta.env.VITE_API_URL);
   }, []);
@@ -19,10 +20,11 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
     try {
-      const API_BASE = import.meta.env.VITE_API_URL; // ✅ cleaner to store once
-
+      const API_BASE = import.meta.env.VITE_API_URL;
       const response = await fetch(`${API_BASE}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,7 +40,7 @@ function Login() {
 
         setMessage("✅ " + data.message);
 
-        // Redirect after 1 second
+        // Redirect to dashboard after 1 second
         setTimeout(() => {
           window.location.href = "/dashboard";
         }, 1000);
@@ -47,7 +49,9 @@ function Login() {
       }
     } catch (error) {
       console.error("Error:", error);
-      setMessage("❌ Cannot connect to backend");
+      setMessage("❌ Cannot connect to backend. Check API URL and CORS.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,9 +85,14 @@ function Login() {
 
           <button
             type="submit"
-            className="w-full bg-green-600 text-white p-3 rounded-lg font-semibold hover:bg-green-700 transition"
+            className={`w-full p-3 rounded-lg font-semibold transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 text-white hover:bg-green-700"
+            }`}
+            disabled={loading}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

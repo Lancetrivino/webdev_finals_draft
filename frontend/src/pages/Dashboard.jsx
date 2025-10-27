@@ -2,12 +2,33 @@ import { useEffect, useState } from "react";
 
 function Dashboard() {
   const [message, setMessage] = useState("Connecting to backend...");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/")
-      .then((res) => res.text())
-      .then((data) => setMessage(data))
-      .catch(() => setMessage("❌ Cannot connect to backend"));
+    const fetchData = async () => {
+      try {
+        const API_BASE = import.meta.env.VITE_API_URL; // ✅ Use environment variable
+        const token = localStorage.getItem("token"); // Optional: check if user is logged in
+
+        const response = await fetch(`${API_BASE}/`, {
+          headers: token
+            ? { Authorization: `Bearer ${token}` } // If you have protected route
+            : {},
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch");
+
+        const data = await response.text();
+        setMessage(data);
+      } catch (error) {
+        console.error("Error:", error);
+        setMessage("❌ Cannot connect to backend. Check API URL and CORS.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
@@ -15,7 +36,9 @@ function Dashboard() {
       <h2 className="text-3xl font-bold mb-6 text-blue-700">Dashboard</h2>
 
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md text-center">
-        <p className="text-lg font-medium">{message}</p>
+        <p className="text-lg font-medium">
+          {loading ? "Loading..." : message}
+        </p>
       </div>
     </div>
   );

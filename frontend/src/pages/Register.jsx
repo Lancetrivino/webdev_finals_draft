@@ -8,8 +8,9 @@ function Register() {
   });
 
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // ✅ For debugging, show which API URL is being used
+  // ✅ Debugging: check which API URL is being used
   useEffect(() => {
     console.log("🌐 Using API:", import.meta.env.VITE_API_URL);
   }, []);
@@ -20,9 +21,11 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
     try {
-      const API_BASE = import.meta.env.VITE_API_URL; // ✅ get from .env
+      const API_BASE = import.meta.env.VITE_API_URL; // From .env
       const response = await fetch(`${API_BASE}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -30,20 +33,23 @@ function Register() {
       });
 
       const data = await response.json();
+
       if (response.ok) {
         setMessage("✅ " + data.message);
         setFormData({ name: "", email: "", password: "" });
 
-        // Optional: redirect after success
+        // Optional: redirect to login after successful registration
         setTimeout(() => {
           window.location.href = "/login";
-        }, 1000);
+        }, 1200);
       } else {
-        setMessage("❌ " + data.message);
+        setMessage("❌ " + (data.message || "Registration failed"));
       }
     } catch (error) {
       console.error("Error:", error);
-      setMessage("❌ Cannot connect to backend");
+      setMessage("❌ Cannot connect to backend. Check API URL and CORS.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,9 +93,14 @@ function Register() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            className={`w-full p-3 rounded-lg font-semibold transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+            disabled={loading}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
