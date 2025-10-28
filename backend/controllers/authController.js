@@ -5,13 +5,7 @@ import generateToken from "../utils/generateToken.js";
 export const registerUser = async (req, res) => {
   const { name, email, password, role } = req.body;
 
-  // send back what backend received for debugging
-  if (!role) {
-    return res.status(400).json({
-      message: "⚠️ No role received from frontend",
-      receivedBody: req.body,
-    });
-  }
+  console.log("🧩 Incoming role:", role);
 
   const userExists = await User.findOne({ email });
   if (userExists)
