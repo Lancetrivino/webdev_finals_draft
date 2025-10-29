@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -12,10 +17,11 @@ import Register from "./pages/Register";
 import CreateEvent from "./pages/CreateEvent";
 import AdminDashboard from "./pages/AdminDashboard";
 import Events from "./pages/Events";
-import Feedback from "./pages/Feedback";      
-import Profile from "./pages/Profile";        
+import Feedback from "./pages/Feedback";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
 
 // Components
 import NavBar from "./components/NavBar";
@@ -37,7 +43,6 @@ if (!API_BASE) {
 export const API_BASE_URL = API_BASE;
 
 console.log("🌐 API_BASE =", API_BASE);
-
 
 const GlobalStyles = () => (
   <style>
@@ -61,7 +66,6 @@ const GlobalStyles = () => (
   </style>
 );
 
-
 const PrivateRoute = ({ children }) => {
   const { currentUser } = useAuth();
   return currentUser ? children : <Navigate to="/login" replace />;
@@ -73,7 +77,6 @@ const AdminRoute = ({ children }) => {
   if (currentUser.role !== "Admin") return <Navigate to="/" replace />;
   return children;
 };
-
 
 const App = () => {
   return (
@@ -93,6 +96,14 @@ const App = () => {
               <Route path="/feedback" element={<Feedback />} />
 
               {/* User Protected */}
+              <Route
+                path="/dashboard"
+                element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                }
+              />
               <Route
                 path="/events"
                 element={
