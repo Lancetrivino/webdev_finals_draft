@@ -24,7 +24,7 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 
 // Components
-import NavBar from "./components/NavBar";
+import Navbar from "./components/Navbar";
 
 // ✅ Dynamic API Base Configuration
 let API_BASE = import.meta.env?.VITE_API_URL;
@@ -85,7 +85,7 @@ const App = () => {
         <GlobalStyles />
         <div className="min-h-screen bg-gradient-to-red from-orange-900 via-orange-700 to-orange-500">
           <ToastContainer position="top-center" />
-          <NavBar />
+          <Navbar />
 
           <main className="pt-6 pb-12">
             <Routes>
