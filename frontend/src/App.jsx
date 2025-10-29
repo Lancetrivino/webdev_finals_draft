@@ -1,29 +1,150 @@
-import { Routes, Route, Link } from "react-router-dom";
-import Register from "./pages/Register.jsx";
-import Login from "./pages/Login.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-function App() {
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-blue-600 text-white p-4 flex justify-between">
-        <h1 className="font-bold text-xl">Eventure</h1>
-        <div className="space-x-4">
-          <Link to="/">Login</Link>
-          <Link to="/register">Register</Link>
-          <Link to="/dashboard">Dashboard</Link>
-        </div>
-      </nav>
+// Context
+import { useAuth, AuthProvider } from "./contexts/AuthContext";
 
-      <div className="p-6">
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </div>
-    </div>
-  );
+// Pages
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import CreateEvent from "./pages/CreateEvent";
+import AdminDashboard from "./pages/AdminDashboard";
+import Events from "./pages/Events";
+import Feedback from "./pages/Feedback";      
+import Profile from "./pages/Profile";        
+import NotFound from "./pages/NotFound";
+import Home from "./pages/Home";
+
+// Components
+import NavBar from "./components/NavBar";
+
+// ✅ Dynamic API Base Configuration
+let API_BASE = import.meta.env?.VITE_API_URL;
+
+if (!API_BASE) {
+  if (import.meta.env.DEV) {
+    // ✅ Local development fallback
+    API_BASE = "http://localhost:5000";
+  } else {
+    // ✅ Deployed fallback (same domain)
+    API_BASE = window.location.origin;
+  }
 }
+
+// ✅ Export for shared usage
+export const API_BASE_URL = API_BASE;
+
+console.log("🌐 API_BASE =", API_BASE);
+
+
+const GlobalStyles = () => (
+  <style>
+    {`
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .Toastify__toast-container {
+        top: 3em;
+        right: 1em;
+      }
+      .Toastify__toast {
+        border-radius: 0.75rem;
+        font-weight: 600;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1),
+                    0 4px 6px -2px rgba(0,0,0,0.05);
+      }
+      .Toastify__toast--success { background-color: #10B981; color: white; }
+      .Toastify__toast--error   { background-color: #EF4444; color: white; }
+    `}
+  </style>
+);
+
+
+const PrivateRoute = ({ children }) => {
+  const { currentUser } = useAuth();
+  return currentUser ? children : <Navigate to="/login" replace />;
+};
+
+const AdminRoute = ({ children }) => {
+  const { currentUser } = useAuth();
+  if (!currentUser) return <Navigate to="/login" replace />;
+  if (currentUser.role !== "Admin") return <Navigate to="/" replace />;
+  return children;
+};
+
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <GlobalStyles />
+        <div className="min-h-screen bg-gradient-to-red from-orange-900 via-orange-700 to-orange-500">
+          <ToastContainer position="top-center" />
+          <NavBar />
+
+          <main className="pt-6 pb-12">
+            <Routes>
+              {/* Public */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/Home" element={<Home />} />
+              <Route path="/feedback" element={<Feedback />} />
+
+              {/* User Protected */}
+              <Route
+                path="/events"
+                element={
+                  <PrivateRoute>
+                    <Events />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/create-event"
+                element={
+                  <PrivateRoute>
+                    <CreateEvent />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/feedback"
+                element={
+                  <PrivateRoute>
+                    <Feedback />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <PrivateRoute>
+                    <Profile />
+                  </PrivateRoute>
+                }
+              />
+
+              {/* Admin Protected */}
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
+
+              {/* Default & 404 */}
+              <Route path="/" element={<Navigate to="/events" replace />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </AuthProvider>
+  );
+};
 
 export default App;

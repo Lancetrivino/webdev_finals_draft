@@ -1,18 +1,16 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext"; // ✅ shared login logic
 
 function Login() {
+  const { login } = useAuth(); // ✅ get login() from context
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // ✅ Show which backend URL is being used
-  useEffect(() => {
-    console.log("🌐 Using API:", import.meta.env.VITE_API_URL);
-  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,35 +19,20 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
     try {
-      const API_BASE = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${API_BASE}/api/users/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      // 🔐 Call the context-provided login() function
+      const user = await login(formData);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // ✅ Save token & user data locally
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-
-        setMessage("✅ " + data.message);
-
-        // Redirect to dashboard after 1 second
-        setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 1000);
+      // Optional: Redirect based on role
+      if (user.role === "Admin") {
+        navigate("/admin");
       } else {
-        setMessage("❌ " + (data.message || "Invalid credentials"));
+        navigate("/events");
       }
     } catch (error) {
-      console.error("Error:", error);
-      setMessage("❌ Cannot connect to backend. Check API URL and CORS.");
+      console.error("Login failed:", error);
+      // ❌ toast is handled in AuthContext automatically
     } finally {
       setLoading(false);
     }
@@ -85,20 +68,16 @@ function Login() {
 
           <button
             type="submit"
+            disabled={loading}
             className={`w-full p-3 rounded-lg font-semibold transition ${
               loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-green-600 text-white hover:bg-green-700"
             }`}
-            disabled={loading}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-
-        {message && (
-          <p className="text-center mt-4 font-medium text-gray-700">{message}</p>
-        )}
       </div>
     </div>
   );

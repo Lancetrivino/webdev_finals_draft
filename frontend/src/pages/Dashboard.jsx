@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 function Dashboard() {
+  const { currentUser, logout } = useAuth(); // ✅ Get user & logout from context
   const [message, setMessage] = useState("Connecting to backend...");
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // ✅ Get user data from localStorage
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
-
-    // ✅ Fetch from backend
     const fetchData = async () => {
       try {
         const API_BASE = import.meta.env.VITE_API_URL;
@@ -22,7 +18,7 @@ function Dashboard() {
 
         if (!response.ok) throw new Error("Failed to fetch backend data.");
 
-        const data = await response.text(); // or response.json() if your backend returns JSON
+        const data = await response.text();
         setMessage(data || "✅ Connected to backend successfully!");
       } catch (error) {
         console.error("Error:", error);
@@ -36,8 +32,7 @@ function Dashboard() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    logout(); // ✅ Uses context logout (handles both token + user)
     window.location.href = "/login";
   };
 
@@ -46,14 +41,14 @@ function Dashboard() {
       <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-lg text-center">
         <h2 className="text-3xl font-bold text-green-600 mb-4">Dashboard</h2>
 
-        {user && (
+        {currentUser && (
           <div className="mb-4 text-gray-700">
             <p>
-              <strong>Welcome:</strong> {user.name}
+              <strong>Welcome:</strong> {currentUser.name}
             </p>
             <p>
               <strong>Role:</strong>{" "}
-              <span className="capitalize">{user.role}</span>
+              <span className="capitalize">{currentUser.role}</span>
             </p>
           </div>
         )}
