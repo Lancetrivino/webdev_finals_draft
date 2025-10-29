@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/AuthContext"; // ✅ for user state
 // ✅ Dynamic API Base URL from environment
 const API_BASE = import.meta.env.VITE_API_URL;
 
-function CreateEventPage() {
+function CreateEvent() {
   const navigate = useNavigate();
   const { currentUser } = useAuth(); // ✅ Check if logged in
 
@@ -149,4 +149,4 @@ function CreateEventPage() {
   );
 }
 
-export default CreateEventPage;
+export default CreateEvent;
