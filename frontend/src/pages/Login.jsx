@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext"; // ✅ shared login logic
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../contexts/AuthContext";
 
 function Login() {
-  const { login } = useAuth(); // ✅ get login() from context
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -21,18 +23,17 @@ function Login() {
     setLoading(true);
 
     try {
-      // 🔐 Call the context-provided login() function
-      const user = await login(formData);
+      const user = await login(formData); // ✅ Uses AuthContext API call
+      toast.success("Welcome back!");
 
-      // Optional: Redirect based on role
-      if (user.role === "Admin") {
-        navigate("/admin");
-      } else {
-        navigate("/events");
-      }
-    } catch (error) {
-      console.error("Login failed:", error);
-      // ❌ toast is handled in AuthContext automatically
+      // ✅ Redirect based on role
+      setTimeout(() => {
+        if (user.role === "Admin") navigate("/admin");
+        else navigate("/dashboard");
+      }, 1000);
+    } catch (err) {
+      console.error(err);
+      toast.error("Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -40,9 +41,10 @@ function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <ToastContainer position="top-center" />
       <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold text-center text-green-600 mb-6">
-          Welcome Back
+          Login to Eventure
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -78,6 +80,13 @@ function Login() {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        <p className="text-center mt-4 text-gray-700">
+          Don’t have an account?{" "}
+          <a href="/register" className="text-green-600 font-semibold hover:underline">
+            Register
+          </a>
+        </p>
       </div>
     </div>
   );

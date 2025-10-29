@@ -1,53 +1,68 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const NavBar = () => {
   const { currentUser, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
+  // 🔸 Hide NavBar on login/register pages
+  if (location.pathname === "/login" || location.pathname === "/register") {
+    return null;
+  }
+
+  // 🔸 Consistent active link styling
+  const navLinkStyle = ({ isActive }) =>
+    `font-medium transition ${
+      isActive
+        ? "text-orange-700 font-semibold"
+        : "text-gray-700 hover:text-orange-700"
+    }`;
+
   return (
     <nav className="bg-white/90 backdrop-blur-md shadow-md sticky top-0 z-50">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-5 py-3">
-        {/* Logo */}
-        <Link
+        {/* 🔹 Logo */}
+        <NavLink
           to="/"
           className="text-2xl font-extrabold text-orange-700 tracking-wide hover:text-orange-800 transition"
         >
           Eventure
-        </Link>
+        </NavLink>
 
-        {/* Desktop Links */}
+        {/* 🔹 Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
-          <Link
-            to="/events"
-            className="text-gray-700 font-medium hover:text-orange-700 transition"
-          >
+          <NavLink to="/events" className={navLinkStyle}>
             Events
-          </Link>
+          </NavLink>
 
           {currentUser && (
-            <Link
-              to="/create-event"
-              className="text-gray-700 font-medium hover:text-orange-700 transition"
-            >
-              Create Event
-            </Link>
+            <>
+              <NavLink to="/create-event" className={navLinkStyle}>
+                Create Event
+              </NavLink>
+
+              <NavLink to="/feedback" className={navLinkStyle}>
+                Feedback
+              </NavLink>
+
+              <NavLink to="/profile" className={navLinkStyle}>
+                Profile
+              </NavLink>
+            </>
           )}
 
           {currentUser?.role === "Admin" && (
-            <Link
-              to="/admin"
-              className="text-gray-700 font-medium hover:text-orange-700 transition"
-            >
+            <NavLink to="/admin" className={navLinkStyle}>
               Admin Dashboard
-            </Link>
+            </NavLink>
           )}
 
           {currentUser ? (
@@ -64,23 +79,17 @@ const NavBar = () => {
             </>
           ) : (
             <>
-              <Link
-                to="/login"
-                className="text-gray-700 font-medium hover:text-orange-700 transition"
-              >
+              <NavLink to="/login" className={navLinkStyle}>
                 Login
-              </Link>
-              <Link
-                to="/register"
-                className="text-gray-700 font-medium hover:text-orange-700 transition"
-              >
+              </NavLink>
+              <NavLink to="/register" className={navLinkStyle}>
                 Register
-              </Link>
+              </NavLink>
             </>
           )}
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* 🔹 Mobile Menu Button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden text-gray-700 focus:outline-none"
@@ -117,36 +126,52 @@ const NavBar = () => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* 🔹 Mobile Dropdown Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white/95 border-t border-gray-200 shadow-md">
+        <div className="md:hidden bg-white/95 border-t border-gray-200 shadow-md animate-fadeIn">
           <div className="flex flex-col items-center gap-4 py-4">
-            <Link
+            <NavLink
               to="/events"
               onClick={() => setMenuOpen(false)}
-              className="text-gray-700 font-medium hover:text-orange-700 transition"
+              className={navLinkStyle}
             >
               Events
-            </Link>
+            </NavLink>
 
             {currentUser && (
-              <Link
-                to="/create-event"
-                onClick={() => setMenuOpen(false)}
-                className="text-gray-700 font-medium hover:text-orange-700 transition"
-              >
-                Create Event
-              </Link>
+              <>
+                <NavLink
+                  to="/create-event"
+                  onClick={() => setMenuOpen(false)}
+                  className={navLinkStyle}
+                >
+                  Create Event
+                </NavLink>
+                <NavLink
+                  to="/feedback"
+                  onClick={() => setMenuOpen(false)}
+                  className={navLinkStyle}
+                >
+                  Feedback
+                </NavLink>
+                <NavLink
+                  to="/profile"
+                  onClick={() => setMenuOpen(false)}
+                  className={navLinkStyle}
+                >
+                  Profile
+                </NavLink>
+              </>
             )}
 
             {currentUser?.role === "Admin" && (
-              <Link
+              <NavLink
                 to="/admin"
                 onClick={() => setMenuOpen(false)}
-                className="text-gray-700 font-medium hover:text-orange-700 transition"
+                className={navLinkStyle}
               >
                 Admin Dashboard
-              </Link>
+              </NavLink>
             )}
 
             {currentUser ? (
@@ -166,20 +191,20 @@ const NavBar = () => {
               </>
             ) : (
               <>
-                <Link
+                <NavLink
                   to="/login"
                   onClick={() => setMenuOpen(false)}
-                  className="text-gray-700 font-medium hover:text-orange-700 transition"
+                  className={navLinkStyle}
                 >
                   Login
-                </Link>
-                <Link
+                </NavLink>
+                <NavLink
                   to="/register"
                   onClick={() => setMenuOpen(false)}
-                  className="text-gray-700 font-medium hover:text-orange-700 transition"
+                  className={navLinkStyle}
                 >
                   Register
-                </Link>
+                </NavLink>
               </>
             )}
           </div>
