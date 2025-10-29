@@ -52,24 +52,35 @@ export const registerUser = async (req, res) => {
 
 // Login
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+      
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
 
-  const user = await User.findOne({ email });
+        const isMatch = await user.matchPassword(password); 
+        
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
 
-  if (user && (await user.matchPassword(password))) {
-    const token = generateToken(user.id, user.role);
+        
+        const token = generateToken(user._id, user.role);
 
-    res.json({
-      message: "Login successful",
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } else {
-    res.status(401).json({ message: "Invalid credentials" });
-  }
+        res.json({
+            message: 'Login successful',
+            token,
+            user: { 
+                id: user._id, 
+                name: user.name, 
+                email: user.email,
+                role: user.role 
+            },
+        });
+    } catch (error) {
+        console.error('❌ Login Error:', error);
+        res.status(500).json({ message: 'Server error during login' });
+    }
 };
