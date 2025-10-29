@@ -32,7 +32,7 @@ let API_BASE = import.meta.env?.VITE_API_URL;
 if (!API_BASE) {
   if (import.meta.env.DEV) {
     // ✅ Local development fallback
-    API_BASE = "http://localhost:5175";
+    API_BASE = "http://localhost:5000";
   } else {
     // ✅ Deployed fallback (same domain)
     API_BASE = window.location.origin;
