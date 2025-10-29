@@ -119,15 +119,7 @@ const App = () => {
                     <CreateEvent />
                   </PrivateRoute>
                 }
-              />
-              <Route
-                path="/feedback"
-                element={
-                  <PrivateRoute>
-                    <Feedback />
-                  </PrivateRoute>
-                }
-              />
+              />  
               <Route
                 path="/profile"
                 element={
