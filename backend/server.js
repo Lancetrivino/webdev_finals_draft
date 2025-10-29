@@ -3,9 +3,6 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import cors from "cors";
-// ⚠️ We have removed the inline user schema and the old app.post routes.
-
-// STEP 1: Import the route file where your correct logic is defined
 import userRoutes from "./routes/userRoutes.js"; 
 
 dotenv.config();
